@@ -1,4 +1,5 @@
 # Smart Contract - Stacks Multisig Vaults
+[![CI](https://github.com/stacksgov/stacksfort-contract/actions/workflows/main.yml/badge.svg)](https://github.com/stacksgov/stacksfort-contract/actions/workflows/main.yml)
 
 This directory contains the Clarity smart contract implementation for the Stacks Multisig Vaults project.
 
