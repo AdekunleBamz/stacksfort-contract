@@ -87,17 +87,17 @@
 )
 
 (define-map txn-signers
-  (tuple (txn-id uint) (signer principal))
+  { txn-id: uint, signer: principal }
   bool
 )
 
 ;; Helpers for tracking which signers have approved a transaction
 (define-private (txn-signer-key (target-id uint) (signer principal))
-    (tuple (txn-id target-id) (signer signer))
+    { txn-id: target-id, signer: signer }
 )
 
 (define-private (build-signature-accumulator (target-id uint) (hash (buff 32)))
-    (tuple (txn-id target-id) (hash hash) (count u0))
+    { txn-id: target-id, hash: hash, count: u0 }
 )
 
 ;; ============================================
@@ -139,12 +139,12 @@
     (expiration (optional uint))
 )
     (begin
-        ;; Verify contract is initialized
+        ;; Verify contract is initialized - critical security check
         (asserts! (var-get initialized) ERR_NOT_INITIALIZED)
-        ;; Verify caller is a signer
+        ;; Verify caller is a signer - only authorized signers can submit
         (let ((caller tx-sender))
             (asserts! (is-some (index-of (var-get signers) caller)) ERR_NOT_SIGNER)
-            ;; Validate amount > 0
+            ;; Validate amount > 0 for standard transfers
             (asserts! (> amount u0) ERR_INVALID_AMOUNT)
             ;; Validate transaction type (0 = STX transfer, 1 = SIP-010 transfer)
             (asserts! (or (is-eq txn-type u0) (is-eq txn-type u1)) ERR_INVALID_TXN_TYPE)
@@ -210,7 +210,7 @@
 ;; Issue #5: Count valid, unique signatures for a transaction
 (define-private (count-valid-unique-signature
     (signature (buff 65))
-    (accumulator (tuple (txn-id uint) (hash (buff 32)) (count uint)))
+    (accumulator { txn-id: uint, hash: (buff 32), count: uint })
 )
     (match (extract-signer (get hash accumulator) signature)
         signer
@@ -219,11 +219,11 @@
                     accumulator
                     (begin
                         (map-set txn-signers key true)
-                        (tuple
-                            (txn-id (get txn-id accumulator))
-                            (hash (get hash accumulator))
-                            (count (+ (get count accumulator) u1))
-                        )
+                        {
+                            txn-id: (get txn-id accumulator),
+                            hash: (get hash accumulator),
+                            count: (+ (get count accumulator) u1)
+                        }
                     )
                 )
             )

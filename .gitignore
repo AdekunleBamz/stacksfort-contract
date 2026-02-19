@@ -12,3 +12,4 @@ costs-reports.json
 node_modules
 stacks/
 x-temp/
+.DS_Store
