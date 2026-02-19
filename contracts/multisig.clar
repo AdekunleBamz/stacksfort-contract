@@ -139,12 +139,12 @@
     (expiration (optional uint))
 )
     (begin
-        ;; Verify contract is initialized
+        ;; Verify contract is initialized - critical security check
         (asserts! (var-get initialized) ERR_NOT_INITIALIZED)
-        ;; Verify caller is a signer
+        ;; Verify caller is a signer - only authorized signers can submit
         (let ((caller tx-sender))
             (asserts! (is-some (index-of (var-get signers) caller)) ERR_NOT_SIGNER)
-            ;; Validate amount > 0
+            ;; Validate amount > 0 for standard transfers
             (asserts! (> amount u0) ERR_INVALID_AMOUNT)
             ;; Validate transaction type (0 = STX transfer, 1 = SIP-010 transfer)
             (asserts! (or (is-eq txn-type u0) (is-eq txn-type u1)) ERR_INVALID_TXN_TYPE)
