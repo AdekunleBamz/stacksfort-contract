@@ -87,17 +87,17 @@
 )
 
 (define-map txn-signers
-  (tuple (txn-id uint) (signer principal))
+  { txn-id: uint, signer: principal }
   bool
 )
 
 ;; Helpers for tracking which signers have approved a transaction
 (define-private (txn-signer-key (target-id uint) (signer principal))
-    (tuple (txn-id target-id) (signer signer))
+    { txn-id: target-id, signer: signer }
 )
 
 (define-private (build-signature-accumulator (target-id uint) (hash (buff 32)))
-    (tuple (txn-id target-id) (hash hash) (count u0))
+    { txn-id: target-id, hash: hash, count: u0 }
 )
 
 ;; ============================================
@@ -210,7 +210,7 @@
 ;; Issue #5: Count valid, unique signatures for a transaction
 (define-private (count-valid-unique-signature
     (signature (buff 65))
-    (accumulator (tuple (txn-id uint) (hash (buff 32)) (count uint)))
+    (accumulator { txn-id: uint, hash: (buff 32), count: uint })
 )
     (match (extract-signer (get hash accumulator) signature)
         signer
@@ -219,11 +219,11 @@
                     accumulator
                     (begin
                         (map-set txn-signers key true)
-                        (tuple
-                            (txn-id (get txn-id accumulator))
-                            (hash (get hash accumulator))
-                            (count (+ (get count accumulator) u1))
-                        )
+                        {
+                            txn-id: (get txn-id accumulator),
+                            hash: (get hash accumulator),
+                            count: (+ (get count accumulator) u1)
+                        }
                     )
                 )
             )
